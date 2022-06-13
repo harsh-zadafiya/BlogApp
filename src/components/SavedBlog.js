@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import NavHomes from "./NavHomes";
-import BlogData from "./BlogData";
 import { BsFillSaveFill } from "react-icons/bs";
 import { toast } from "react-toastify";
+import { GridBox } from "./MyBlog";
+import "../css/noBlog.css";
 
 const SavedBlog = () => {
   const [getDatafromLs, setGetDatafromLs] = useState([]);
@@ -26,7 +26,7 @@ const SavedBlog = () => {
         if (element.blogId && Array.isArray(element.blogId)) {
           getDatafromLs.forEach((ele) => {
             if (element.blogId.includes(ele.idforcred)) {
-              arr.push(ele);
+              arr.unshift(ele);
             }
           });
         }
@@ -42,7 +42,6 @@ const SavedBlog = () => {
         return idforcred !== data.idforcred;
       });
     });
-    console.log(saveData);
 
     getDataofAllUser.forEach((data) => {
       if (data.email === getmail) {
@@ -58,69 +57,56 @@ const SavedBlog = () => {
             arr.push(currentUser);
 
             localStorage.setItem("loggedUser", JSON.stringify(currentUser));
-            console.log(currentUser);
           }
         }
       } else {
         arr.push(data);
       }
     });
-    // setSaveData(saveData.reverse());
-    // console.log(saveData);
+
     localStorage.setItem("detail", JSON.stringify(arr));
   };
 
   return (
     <>
       <div>
-        <NavHomes />
-
         {saveData.length !== 0 ? (
           <>
             <div>
-              <div>
-                {saveData.map((elem, id) => {
-                  return (
-                    <>
-                      <div>
-                        <div>
-                          <BlogData
-                            title={elem.title}
-                            interstedValue={elem.interstedValue}
-                            description={elem.description}
-                          />
-                        </div>
-                        <div className="mb-5">
-                          <BsFillSaveFill
-                            onClick={() => {
-                              handleClickofUnsave(elem.idforcred);
-                            }}
-                            cursor="pointer"
-                            style={{
-                              height: "25px",
-                              width: "25px",
-                              marginLeft: "450px",
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </>
-                  );
-                })}
-              </div>
+              {saveData.map((elem, id) => {
+                return (
+                  <GridBox
+                    // key={elem.idforcred}
+                    key={id}
+                    className="card mb-4 mt-5"
+                    style={{ width: "25rem", border: "solid black" }}
+                  >
+                    <div className="card-body">
+                      <h4 className="card-title mb-4">{elem.title}</h4>
+                      <h6 className="card-subtitle mb-2 text-muted">
+                        Topic : {elem.interstedValue + ""}
+                      </h6>
+                      <p className="card-text">{elem.description}</p>
+                      <BsFillSaveFill
+                        onClick={() => {
+                          handleClickofUnsave(elem.idforcred);
+                        }}
+                        cursor="pointer"
+                        style={{
+                          height: "25px",
+                          width: "25px",
+                        }}
+                      />
+                    </div>
+                  </GridBox>
+                );
+              })}
             </div>
           </>
         ) : (
           <>
-            <div className="mt-5">
-              <p
-                className="fs-2"
-                style={{
-                  textAlign: "center",
-                }}
-              >
-                No Blogs
-              </p>
+            <div className="page-heading">
+              <h1>No Blogs</h1>
             </div>
           </>
         )}

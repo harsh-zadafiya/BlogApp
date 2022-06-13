@@ -1,10 +1,23 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { MultiSelect } from "react-multi-select-component";
 import { toast } from "react-toastify";
-import { BoxWrap, InputCss, ButtonCss, Heading } from "./Login.js";
-import { MultiSelectCss } from "./Profile";
+import { ButtonCss, BoxWrap, InputCss, Heading } from "./Login";
+import styled from "styled-components";
 
-const Signup = () => {
+export const MultiSelectCss = styled(MultiSelect)`
+  display: block;
+  box-sizing: border-box;
+  padding: 10px;
+  width: 100%;
+  margin: 14px auto;
+  color: #046772;
+  &:hover {
+    outline: 0;
+    border-color: #046772;
+  }
+`;
+
+const Profile = () => {
   const options = [
     { label: "Sport", value: "Sport" },
     { label: "Food", value: "Food" },
@@ -13,87 +26,61 @@ const Signup = () => {
     { label: "Health", value: "Health" },
   ];
 
-  const [detail, setDetail] = useState(localStorage.getItem("detail") || []);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [mobile, setMobile] = useState("");
   const [about, setAbout] = useState("");
+  const [mobile, setMobile] = useState("");
   const [passWord, setPassWord] = useState("");
   const [selected, setSelected] = useState([]);
 
-  const navigate = useNavigate();
+  const dataFromAdd = JSON.parse(localStorage.getItem("detail"));
+  const getmail = JSON.parse(localStorage.getItem("email"));
 
-  const submitData = (e) => {
-    e.preventDefault();
-    const mailofdata = detail.map((elm) => elm.email);
-    const mobileofData = detail.map((elm) => elm.mobile);
-    if (mailofdata.includes(email)) {
-      toast.warn("Already Email Exisits!!");
-    } else if (mobileofData.includes(mobile)) {
-      toast.warn("Already Mobile No. Exisitis!!");
-    } else {
-      if (name !== "") {
-        if (
-          email !== "" &&
-          email.match(
-            /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
-          )
-        ) {
-          if (mobile === "" || mobile.match(/^(\+\d{1,3}[- ]?)?\d{10}$/)) {
-            if (selected.some((obj) => obj)) {
-              if (passWord !== "") {
-                let interstedValue = [];
-                selected.forEach((obj) => interstedValue.push(obj.value));
-
-                let data = {
-                  name,
-                  email,
-                  mobile,
-                  about,
-                  passWord,
-                  interstedValue,
-                };
-
-                const totalData = [...detail, data];
-                setDetail(totalData);
-                setName("");
-                setEmail("");
-                setMobile("");
-                setAbout("");
-                setPassWord("");
-                setSelected([]);
-
-                localStorage.setItem("detail", JSON.stringify(totalData));
-
-                toast.success("Successfully Signup!");
-                navigate("/login");
-              } else {
-                toast.warn("Please Enter Password!");
-              }
-            } else {
-              toast.warn("Please Select atleast one Interest!");
-            }
-          } else {
-            toast.warn("Enter Valid Number");
-          }
-        } else {
-          toast.warn("Please Enter Valid Email!");
-        }
-      } else {
-        toast.warn("Please Enter Your Name!");
-      }
-    }
-  };
   useEffect(() => {
-    const data = localStorage.getItem("detail");
+    const dataFromAdd = JSON.parse(localStorage.getItem("detail"));
+    const getmail = JSON.parse(localStorage.getItem("email"));
 
-    if (data !== null) {
-      setDetail(JSON.parse(data));
+    const fillData = dataFromAdd.find((ele) => ele.email === getmail);
+    if (fillData) {
+      setName(fillData.name);
+      setEmail(fillData.email);
+      setAbout(fillData.about);
+      setMobile(fillData.mobile);
+      setPassWord(fillData.passWord);
+      const data = options.filter((el) =>
+        fillData.interstedValue.find((i) => i === el.value)
+      );
+      setSelected(data);
     }
   }, []);
 
-  const onSelect = (data) => {
+  const onSelected = (data) => {
     setSelected(data);
+  };
+
+  const submitData = (e) => {
+    e.preventDefault();
+
+    const arr = [];
+
+    dataFromAdd.forEach((ele) => {
+      if (ele.email === getmail) {
+        const userData = {
+          ...ele,
+          name,
+          about,
+          mobile,
+          passWord,
+          interstedValue: selected.map((el) => el.value),
+        };
+        arr.push(userData);
+        localStorage.setItem("loggedUser", JSON.stringify(userData));
+      } else {
+        arr.push(ele);
+      }
+    });
+    toast.success("Your Profile Edidted");
+    localStorage.setItem("detail", JSON.stringify(arr));
   };
 
   return (
@@ -107,9 +94,9 @@ const Signup = () => {
       >
         <div>
           <div>
-            <Heading>SignUp</Heading>
+            <Heading>Edit Your Profile</Heading>
           </div>
-          <form>
+          <div>
             <div className="mb-3">
               <label htmlFor="inputName" className="form-label">
                 Name <span style={{ color: "red" }}>*</span>
@@ -120,7 +107,7 @@ const Signup = () => {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter your name"
                 className="form-control"
-                id="inputName"
+                id="updateinputName"
                 style={{ width: "350px" }}
               />
             </div>
@@ -131,10 +118,11 @@ const Signup = () => {
               <InputCss
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                readOnly
+                //   onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter Your Email address"
                 className="form-control"
-                id="inputEmail"
+                id="updateinputEmail"
                 style={{ width: "350px" }}
               />
             </div>
@@ -148,7 +136,7 @@ const Signup = () => {
                 onChange={(e) => setMobile(e.target.value)}
                 placeholder="Enter your Mobile Number"
                 className="form-control"
-                id="mobileNumber"
+                id="updatemobileNumber"
                 style={{ width: "350px" }}
               />
             </div>
@@ -162,7 +150,7 @@ const Signup = () => {
                 onChange={(e) => setAbout(e.target.value)}
                 placeholder="Enter about yourself"
                 className="form-control"
-                id="aboutMe"
+                id="updateaboutMe"
                 style={{ width: "350px" }}
               />
             </div>
@@ -172,7 +160,7 @@ const Signup = () => {
                 className="form-check-input"
                 type="radio"
                 name="flexRadioDefault"
-                id="flexRadioDefault1"
+                id="updateflexRadioDefault1"
                 defaultChecked
               />
               <label className="form-check-label" htmlFor="flexRadioDefault1">
@@ -184,7 +172,7 @@ const Signup = () => {
                 className="form-check-input"
                 type="radio"
                 name="flexRadioDefault"
-                id="flexRadioDefault2"
+                id="updateflexRadioDefault2"
               />
               <label
                 className="form-check-label mb-3"
@@ -194,15 +182,13 @@ const Signup = () => {
               </label>
             </div>
             <div className="mb-3">
-              <p>
-                Select Interest <span style={{ color: "red" }}>*</span>
-              </p>
-
+              <h6 className="mb-3">
+                Select Topic<span style={{ color: "red" }}> *</span>
+              </h6>
               <MultiSelectCss
                 options={options}
                 value={selected}
-                onChange={onSelect}
-                labelledBy="Select"
+                onChange={onSelected}
               />
             </div>
 
@@ -211,25 +197,19 @@ const Signup = () => {
                 Password <span style={{ color: "red" }}>*</span>
               </label>
               <InputCss
-                type="password"
+                type="text"
                 value={passWord}
                 onChange={(e) => setPassWord(e.target.value)}
                 placeholder="Enter password"
                 className="form-control"
-                id="Inputpassword"
+                id="updateInputpassword"
                 style={{ width: "350px" }}
               />
             </div>
-
-            <ButtonCss type="submit" onClick={submitData}>
-              Submit
+            <ButtonCss type="submit" className="mb-3" onClick={submitData}>
+              Edit
             </ButtonCss>
-            <div className="mb-3 mt-2">
-              <p className="form-label">
-                Already User? <Link to={"/login"}>Login</Link>
-              </p>
-            </div>
-          </form>
+          </div>
           <div>
             <p>
               <span style={{ color: "red" }}>*</span>Required Field
@@ -240,5 +220,4 @@ const Signup = () => {
     </>
   );
 };
-
-export default Signup;
+export default Profile;

@@ -1,7 +1,6 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./Navbar";
-import Home from "./Home";
 import ContactUs from "./ContactUs";
 import { BrowserRouter } from "react-router-dom";
 import Signup from "./Signup";
@@ -14,8 +13,12 @@ import SavedBlog from "./SavedBlog";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import AdminPage from "./AdminPage";
+import PublicRoute from "./PublicRoute";
+import Profile from "./Profile";
+import "../css/Navbar.css";
 
 const ReactComponents = () => {
+  // const isLogged = localStorage.getItem("isLoggedUser");
   return (
     <>
       <ToastContainer
@@ -35,14 +38,6 @@ const ReactComponents = () => {
         <div className="container">
           <Routes>
             <Route
-              path="/home"
-              element={
-                <PrivateRoute>
-                  <Home />
-                </PrivateRoute>
-              }
-            />
-            <Route
               path="home/addblog/:id"
               element={
                 <PrivateRoute>
@@ -58,14 +53,43 @@ const ReactComponents = () => {
                 </PrivateRoute>
               }
             />
-            <Route path="/about" element={<ContactUs />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/login" element={<Login />} />
+            <Route
+              path="/about"
+              element={
+                <PublicRoute>
+                  <ContactUs />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/signup"
+              element={
+                <PublicRoute>
+                  <Signup />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <PublicRoute>
+                  <Login />
+                </PublicRoute>
+              }
+            />
             <Route
               path="/home/addblog"
               element={
                 <PrivateRoute>
                   <AddBlog />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <PrivateRoute>
+                  <Profile />
                 </PrivateRoute>
               }
             />

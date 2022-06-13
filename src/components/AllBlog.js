@@ -1,10 +1,12 @@
-import BlogData from "./BlogData";
-import NavHomes from "./NavHomes";
 import { BsSave2 } from "react-icons/bs";
 import { BsFillSaveFill } from "react-icons/bs";
+import { FiEdit } from "react-icons/fi";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { MultiSelect } from "react-multi-select-component";
+import { useNavigate } from "react-router-dom";
+import { GridBox } from "./MyBlog";
+import "../css/noBlog.css";
+import { MultiSelectCss } from "./Profile";
 
 const AllBlog = () => {
   const options = [
@@ -14,18 +16,20 @@ const AllBlog = () => {
     { label: "Fashion", value: "Fashion" },
     { label: "Health", value: "Health" },
   ];
-
   const [allData, setAllData] = useState([]); // Duplicate
   const [getDataAdd, setGetDataAdd] = useState([]); //all Data
   const [isRefresh, setIsRefresh] = useState(true);
   const [selected, setSelected] = useState([]); // handleChange interested
   const [search, setSearch] = useState(""); //handleChange title
-  const [alreadyInpFilter, setAlreadyInpFilter] = useState([]); // needed  topic
-  const [alreadySelFilter, setAlreadySelFilter] = useState([]); //needed interested
+  const [alreadyInpFilter, setAlreadyInpFilter] = useState([]); // already  title
+  const [alreadySelFilter, setAlreadySelFilter] = useState([]); //already interested
+
+  const navigate = useNavigate();
 
   const getInterest = JSON.parse(localStorage.getItem("loggedUser"));
+  const getmail = JSON.parse(localStorage.getItem("email"));
 
-  // Change Data as per Interest and Add
+  // Filter Data as per Interest and Add
 
   useEffect(() => {
     const getInterest = JSON.parse(localStorage.getItem("loggedUser"));
@@ -219,12 +223,17 @@ const AllBlog = () => {
     }
   };
 
+  //editData
+
+  const handleEdit = (idforcred) => {
+    navigate(`/home/addblog/${idforcred}`);
+  };
+
   // Render Data
   return (
     <>
       <div>
-        <NavHomes />
-        <div className="input-group  mt-4 mb-5">
+        <div className="input-group  mt-3 mb-5">
           <div className="form-outline">
             <input
               type="search"
@@ -232,12 +241,12 @@ const AllBlog = () => {
               value={search}
               onChange={handleOnSearch}
               placeholder="Search topic"
-              className="form-control"
+              className="form-control mt-4"
             />
           </div>
 
           <div className="form-outline mx-5">
-            <MultiSelect
+            <MultiSelectCss
               type="search"
               options={options}
               value={selected}
@@ -253,45 +262,60 @@ const AllBlog = () => {
               <div>
                 {getDataAdd.map((elem, id) => {
                   return (
-                    <>
-                      <div>
-                        <div>
-                          <BlogData
-                            title={elem.title}
-                            interstedValue={elem.interstedValue}
-                            description={elem.description}
+                    <GridBox
+                      // key={elem.idforcred}
+                      key={id}
+                      className="card mb-4 mt-5"
+                      style={{ width: "25rem", border: "solid black" }}
+                    >
+                      <div className="card-body">
+                        <h4 className="card-title mb-4">{elem.title}</h4>
+                        <h6 className="card-subtitle mb-2 text-muted">
+                          Topic : {elem.interstedValue + ""}
+                        </h6>
+                        <p className="card-text">{elem.description}</p>
+
+                        {elem.id === getmail && (
+                          <FiEdit
+                            cursor="pointer"
+                            onClick={() => {
+                              handleEdit(elem.idforcred);
+                            }}
+                            style={{
+                              height: "25px",
+                              width: "25px",
+                            }}
                           />
-                        </div>
-                        <div className="mb-5">
-                          {getInterest.blogId &&
-                          getInterest.blogId.indexOf(elem.idforcred) > -1 ? (
-                            <BsFillSaveFill
-                              onClick={() => {
-                                handleClickofSave(elem.idforcred);
-                              }}
-                              cursor="pointer"
-                              style={{
-                                height: "25px",
-                                width: "25px",
-                                marginLeft: "450px",
-                              }}
-                            />
-                          ) : (
-                            <BsSave2
-                              onClick={() => {
-                                handleClickofSave(elem.idforcred);
-                              }}
-                              cursor="pointer"
-                              style={{
-                                height: "25px",
-                                width: "25px",
-                                marginLeft: "450px",
-                              }}
-                            />
-                          )}
-                        </div>
+                        )}
+
+                        {getInterest.blogId &&
+                        getInterest.blogId.indexOf(elem.idforcred) > -1 ? (
+                          <BsFillSaveFill
+                            className="ms-4"
+                            onClick={() => {
+                              handleClickofSave(elem.idforcred);
+                            }}
+                            cursor="pointer"
+                            style={{
+                              height: "25px",
+                              width: "25px",
+                            }}
+                          />
+                        ) : (
+                          <BsSave2
+                            className="ms-4"
+                            onClick={() => {
+                              handleClickofSave(elem.idforcred);
+                            }}
+                            cursor="pointer"
+                            style={{
+                              height: "25px",
+                              width: "25px",
+                            }}
+                          />
+                        )}
                       </div>
-                    </>
+                    </GridBox>
                   );
                 })}
               </div>
@@ -299,15 +323,8 @@ const AllBlog = () => {
           </>
         ) : (
           <>
-            <div className="mt-5">
-              <p
-                className="fs-2"
-                style={{
-                  textAlign: "center",
-                }}
-              >
-                No Blogs
-              </p>
+            <div className="page-heading">
+              <h1>No Blogs</h1>
             </div>
           </>
         )}

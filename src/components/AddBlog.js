@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import NavHomes from "./NavHomes";
-import { MultiSelect } from "react-multi-select-component";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
-import { valueMaker } from "./helper";
+import { valueMaker } from "../services/helper";
+import { ButtonCss, BoxWrap, Heading, InputCss } from "./Login";
+import { MultiSelectCss } from "./Profile";
+// import { addDoc, collection } from "firebase/firestore";
+// import { db } from "./firebase-config";
 
 const getLocaldata = () => {
   let list = localStorage.getItem("BlogData");
@@ -55,6 +57,30 @@ const AddBlog = () => {
     }
   }, [params.id, detailofAdd]);
 
+  // firebase >>>>>>>>
+  // const blogCollection = collection(db, "allBlog");
+
+  // const onSubmit = async (e) => {
+  //   e.preventDefault();
+  //   if (selected.some((obj) => obj)) {
+  //     await addDoc(blogCollection, {
+  //       title,
+  //       description,
+  //       interestedValue: selected.map((el) => el.value),
+  //       id: JSON.parse(localStorage.getItem("email")),
+  //       idforcred: Math.trunc(Math.random() * 1000) + 1,
+  //     });
+  //     setTitle("");
+  //     setDescription("");
+  //     setSelected([]);
+  //     toast.success("Your Blog Added");
+  //   } else {
+  //     toast.warn("Please Select Topic Related Your Blog!!");
+  //   }
+  // };
+
+  // localstorage >>>>>>
+
   const onSubmit = (e) => {
     e.preventDefault();
 
@@ -88,7 +114,6 @@ const AddBlog = () => {
           title,
           description,
           interstedValue,
-          // id: JSON.parse(localStorage.getItem("id")),  // problem in second time login
           id: JSON.parse(localStorage.getItem("email")),
           idforcred: Math.trunc(Math.random() * 1000) + 1,
         };
@@ -112,72 +137,80 @@ const AddBlog = () => {
   return (
     <>
       <div>
-        <NavHomes />
-        <div className="container my-3 ">
-          <h1>{params.id ? "Edit Blog" : "Add Blog"}</h1>
-          <form className="my-3">
-            <div className="mb-3">
-              <label htmlFor="exampleInputEmail1" className="form-label">
-                Title
-              </label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => {
-                  setTitle(e.target.value);
-                }}
-                style={{ width: "350px" }}
-                placeholder="Enter Title"
-                className="form-control"
-                id="exampleInputEmail1"
-                aria-describedby="emailHelp"
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="exampleInputDescription1" className="form-label">
-                Description
-              </label>
-              <input
-                type="text"
-                value={description}
-                onChange={(e) => {
-                  setDescription(e.target.value);
-                }}
-                style={{ height: "200px" }}
-                className="form-control"
-                placeholder="Enter description"
-                id="exampleInputDescription1"
-              />
-            </div>
+        <BoxWrap
+          style={{
+            margin: "30px auto 0 auto",
+            maxWidth: "550px",
+            maxHeight: "1000px",
+          }}
+        >
+          <div>
+            {" "}
+            <div className="container my-3 ">
+              <Heading>{params.id ? "Edit Blog" : "Add Blog"}</Heading>
+              <form className="my-3">
+                <div className="mb-3">
+                  <label htmlFor="exampleInputEmail1" className="form-label">
+                    Title
+                  </label>
+                  <InputCss
+                    type="text"
+                    value={title}
+                    onChange={(e) => {
+                      setTitle(e.target.value);
+                    }}
+                    style={{ width: "350px" }}
+                    placeholder="Enter Title"
+                    className="form-control"
+                    id="addexampleInputEmail1"
+                    aria-describedby="emailHelp"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label
+                    htmlFor="exampleInputDescription1"
+                    className="form-label"
+                  >
+                    Description
+                  </label>
+                  <InputCss
+                    type="text"
+                    value={description}
+                    onChange={(e) => {
+                      setDescription(e.target.value);
+                    }}
+                    style={{ height: "200px" }}
+                    className="form-control"
+                    placeholder="Enter description"
+                    id="addexampleInputDescription1"
+                  />
+                </div>
 
-            <div className="mb-3">
-              <h6 className="mb-3">
-                Select Topic<span style={{ color: "red" }}> *</span>
-              </h6>
-              <MultiSelect
-                options={options}
-                value={selected}
-                onChange={onSelected}
-                labelledBy="Select"
-              />
+                <div className="mb-3">
+                  <h6 className="mb-3">
+                    Select Topic<span style={{ color: "red" }}> *</span>
+                  </h6>
+                  <MultiSelectCss
+                    options={options}
+                    value={selected}
+                    onChange={onSelected}
+                    labelledBy="Select"
+                  />
+                </div>
+                <ButtonCss type="submit" onClick={onSubmit}>
+                  {params.id ? "Edit" : "Submit"}
+                </ButtonCss>
+              </form>
+              <div className="mb-20">
+                <p>
+                  <span style={{ color: "red" }}>*</span>Required Field
+                </p>
+              </div>
             </div>
-            <button
-              type="submit"
-              onClick={onSubmit}
-              className="btn btn-primary mt-10px"
-            >
-              {params.id ? "Edit" : "Submit"}
-            </button>
-          </form>
-        </div>
+          </div>
+        </BoxWrap>
       </div>
-      <div>
-        <div className="mb-20">
-          <p>
-            <span style={{ color: "red" }}>*</span>Required Field
-          </p>
-        </div>
-      </div>
+      <div></div>
     </>
   );
 };
